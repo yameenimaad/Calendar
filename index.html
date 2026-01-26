@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Horizon 2026 | Celestial Portal</title>
+    
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --gold: #ffd700;
+            --glass: rgba(0, 0, 0, 0.6);
+            --border: rgba(255, 255, 255, 0.1);
+        }
+
+        body, html {
+            margin: 0; padding: 0;
+            height: 100vh; width: 100vw;
+            background: #000; color: white;
+            font-family: 'Inter', sans-serif;
+            overflow: hidden;
+        }
+
+        /* Full Screen Background Layer */
+        #bg-layer {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background-size: cover; 
+            background-position: center;
+            transition: background-image 3s ease-in-out;
+            z-index: 0; 
+            filter: brightness(0.4);
+        }
+
+        #three-canvas { position: fixed; top: 0; left: 0; z-index: 1; pointer-events: none; }
+
+        .content-overlay {
+            position: relative; z-index: 10;
+            height: 100vh; width: 100vw;
+            display: flex; flex-direction: column;
+            justify-content: space-between;
+            padding: 40px; box-sizing: border-box;
+            background: radial-gradient(circle, transparent 30%, rgba(0,0,0,0.5) 100%);
+        }
+
+        .top-bar { display: flex; justify-content: space-between; align-items: flex-start; }
+
+        header h1 {
+            font-family: 'Cinzel', serif; font-size: 2rem;
+            letter-spacing: 15px; margin: 0; text-transform: uppercase;
+        }
+
+        #utc-clock {
+            font-family: 'Inter', sans-serif; font-size: 0.75rem;
+            letter-spacing: 3px; color: var(--gold); font-weight: 600;
+            background: rgba(0,0,0,0.3); padding: 5px 15px; border-radius: 20px;
+        }
+
+        .month-grid {
+            display: grid; grid-template-columns: repeat(6, 1fr);
+            gap: 12px; width: 100%; max-width: 1100px; margin: 0 auto;
+        }
+
+        .month-card {
+            background: var(--glass); border: 1px solid var(--border);
+            padding: 20px 5px; text-decoration: none; color: white;
+            display: flex; flex-direction: column; align-items: center;
+            transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            backdrop-filter: blur(10px);
+        }
+
+        .month-card:hover {
+            border-color: var(--gold); transform: translateY(-10px);
+            background: rgba(255, 215, 0, 0.1);
+        }
+
+        .month-card .num { font-size: 0.55rem; color: var(--gold); font-weight: 800; }
+        .month-card .name { font-family: 'Cinzel', serif; font-size: 0.8rem; margin: 4px 0; letter-spacing: 2px; }
+        .month-card i { opacity: 0.5; width: 18px; }
+
+        /* Zodiac Footer Styling */
+        .zodiac-footer {
+            width: 100%; border-top: 1px solid var(--border);
+            padding-top: 25px; display: flex; justify-content: center; gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .zodiac-link {
+            text-decoration: none; color: white;
+            display: flex; flex-direction: column; align-items: center; 
+            opacity: 0.4; transition: 0.3s;
+        }
+
+        .zodiac-link:hover { opacity: 1; color: var(--gold); transform: scale(1.1); }
+        .zodiac-link span { font-size: 0.5rem; text-transform: uppercase; letter-spacing: 1px; margin-top: 6px; }
+        .zodiac-link i { width: 16px; height: 16px; }
+
+        @media (max-width: 900px) {
+            .month-grid { grid-template-columns: repeat(3, 1fr); }
+            .zodiac-footer { gap: 10px; }
+        }
+        /* Add this inside your <style> tag */
+        .fade-in-load {
+            animation: portalFade 2s ease-in-out forwards;
+        }
+
+        @keyframes portalFade {
+            from { opacity: 0; filter: blur(10px); }
+            to { opacity: 1; filter: blur(0); }
+        }
+
+        /* Hide content initially to prevent flickering */
+        .ui-layer {
+            opacity: 0;
+        }
+
+    </style>
+</head>
+<body>
+
+    <div id="bg-layer"></div>
+    <canvas id="three-canvas"></canvas>
+
+    <div class="content-overlay">
+        
+        <div class="top-bar">
+            <header><h1>Horizon</h1></header>
+            <div id="utc-clock">UTC 00:00:00</div>
+        </div>
+
+        <nav class="month-grid">
+            <a href="months/january.html" class="month-card"><span class="num">01</span><span class="name">JAN</span><i data-lucide="snowflake"></i></a>
+            <a href="months/february.html" class="month-card"><span class="num">02</span><span class="name">FEB</span><i data-lucide="heart"></i></a>
+            <a href="months/march.html" class="month-card"><span class="num">03</span><span class="name">MAR</span><i data-lucide="wind"></i></a>
+            <a href="months/april.html" class="month-card"><span class="num">04</span><span class="name">APR</span><i data-lucide="cloud-rain"></i></a>
+            <a href="months/may.html" class="month-card"><span class="num">05</span><span class="name">MAY</span><i data-lucide="flower"></i></a>
+            <a href="months/june.html" class="month-card"><span class="num">06</span><span class="name">JUN</span><i data-lucide="sun"></i></a>
+            <a href="months/july.html" class="month-card"><span class="num">07</span><span class="name">JUL</span><i data-lucide="crown"></i></a>
+            <a href="months/august.html" class="month-card"><span class="num">08</span><span class="name">AUG</span><i data-lucide="wheat"></i></a>
+            <a href="months/september.html" class="month-card"><span class="num">09</span><span class="name">SEP</span><i data-lucide="scale"></i></a>
+            <a href="months/october.html" class="month-card"><span class="num">10</span><span class="name">OCT</span><i data-lucide="ghost"></i></a>
+            <a href="months/november.html" class="month-card"><span class="num">11</span><span class="name">NOV</span><i data-lucide="cloud-snow"></i></a>
+            <a href="months/december.html" class="month-card"><span class="num">12</span><span class="name">DEC</span><i data-lucide="mountain"></i></a>
+        </nav>
+
+        <div class="zodiac-footer">
+            <a href="months/january.html" class="zodiac-link"><i data-lucide="waves"></i><span>AQU</span></a>
+            <a href="months/february.html" class="zodiac-link"><i data-lucide="shrub"></i><span>PIS</span></a>
+            <a href="months/march.html" class="zodiac-link"><i data-lucide="zap"></i><span>ARI</span></a>
+            <a href="months/april.html" class="zodiac-link"><i data-lucide="gem"></i><span>TAU</span></a>
+            <a href="months/may.html" class="zodiac-link"><i data-lucide="users"></i><span>GEM</span></a>
+            <a href="months/june.html" class="zodiac-link"><i data-lucide="moon"></i><span>CAN</span></a>
+            <a href="months/july.html" class="zodiac-link"><i data-lucide="sun"></i><span>LEO</span></a>
+            <a href="months/august.html" class="zodiac-link"><i data-lucide="clipboard-check"></i><span>VIR</span></a>
+            <a href="months/september.html" class="zodiac-link"><i data-lucide="scale"></i><span>LIB</span></a>
+            <a href="months/october.html" class="zodiac-link"><i data-lucide="skull"></i><span>SCO</span></a>
+            <a href="months/november.html" class="zodiac-link"><i data-lucide="map-pin"></i><span>SAG</span></a>
+            <a href="months/december.html" class="zodiac-link"><i data-lucide="mountain"></i><span>CAP</span></a>
+        </div>
+    </div>
+
+<script>
+    // 1. Initialize Lucide Icons
+    lucide.createIcons();
+
+    // 2. UTC Clock
+    function updateClock() {
+        const now = new Date();
+        const utc = now.toUTCString().split(' ')[4];
+        document.getElementById('utc-clock').innerHTML = `UTC ${utc}`;
+    }
+    setInterval(updateClock, 1000);
+    updateClock();
+
+    // 3. Background Cycle Logic (60s)
+    const bgImages = [
+        'bg/bg.jpg', 'bg/bg1.jpg', 'bg/bg2.jpg', 
+        'bg/bg3.jpg', 'bg/bg4.jpg', 'bg/bg5.jpg', 'bg/bg6.jpg'
+    ];
+    let bgIdx = 0;
+    const bgLayer = document.getElementById('bg-layer');
+
+    function cycleBg() {
+        const nextImg = new Image();
+        nextImg.src = bgImages[bgIdx];
+        nextImg.onload = () => {
+            bgLayer.style.backgroundImage = `url('${bgImages[bgIdx]}')`;
+            bgIdx = (bgIdx + 1) % bgImages.length;
+        };
+    }
+    cycleBg();
+    setInterval(cycleBg, 60000);
+
+    // 4. Three.js Engine
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 1000);
+    const renderer = new THREE.WebGLRenderer({ canvas: document.getElementById('three-canvas'), alpha: true, antialias: true });
+    renderer.setSize(window.innerWidth, window.innerHeight);
+
+    const particlesGeom = new THREE.BufferGeometry();
+    const count = 1200;
+    const posArr = new Float32Array(count * 3);
+    for(let i=0; i<count*3; i++) { posArr[i] = (Math.random() - 0.5) * 15; }
+    particlesGeom.setAttribute('position', new THREE.BufferAttribute(posArr, 3));
+    
+    const material = new THREE.PointsMaterial({ 
+        size: 0.008, 
+        color: 0xffd700, 
+        transparent: true, 
+        opacity: 0.6,
+        blending: THREE.AdditiveBlending 
+    });
+    
+    const points = new THREE.Points(particlesGeom, material);
+    scene.add(points);
+    camera.position.z = 5;
+
+    function animate() {
+        requestAnimationFrame(animate);
+        points.rotation.y += 0.0003;
+        points.rotation.x += 0.0001;
+        renderer.render(scene, camera);
+    }
+    animate();
+
+    // 5. THE POLISH: Reveal page when everything is ready
+    window.addEventListener('load', () => {
+        const ui = document.querySelector('.ui-layer');
+        ui.style.transition = "opacity 2.5s ease-in-out";
+        ui.style.opacity = "1";
+    });
+
+    window.addEventListener('resize', () => {
+        camera.aspect = window.innerWidth / window.innerHeight;
+        camera.updateProjectionMatrix();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+    });
+</script>
+</body>
+</html>
