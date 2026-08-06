@@ -18,10 +18,15 @@
 
         body, html {
             margin: 0; padding: 0;
-            height: 100vh; width: 100vw;
+            min-height: 100%; width: 100%;
             background: #000; color: white;
             font-family: 'Inter', sans-serif;
-            overflow: hidden;
+            overflow-x: hidden;
+            overflow-y: auto;
+        }
+
+        body {
+            min-height: 100dvh;
         }
 
         /* Full Screen Background Layer */
@@ -38,37 +43,43 @@
 
         .content-overlay {
             position: relative; z-index: 10;
-            height: 100vh; width: 100vw;
+            min-height: 100dvh; width: 100%;
             display: flex; flex-direction: column;
             justify-content: space-between;
-            padding: 40px; box-sizing: border-box;
+            padding: clamp(16px, 2.5vw, 40px); box-sizing: border-box;
+            gap: clamp(16px, 2vw, 24px);
             background: radial-gradient(circle, transparent 30%, rgba(0,0,0,0.5) 100%);
         }
 
-        .top-bar { display: flex; justify-content: space-between; align-items: flex-start; }
+        .top-bar {
+            display: flex; justify-content: space-between; align-items: flex-start;
+            gap: 12px; flex-wrap: wrap;
+        }
 
         header h1 {
-            font-family: 'Cinzel', serif; font-size: 2rem;
-            letter-spacing: 15px; margin: 0; text-transform: uppercase;
+            font-family: 'Cinzel', serif; font-size: clamp(1.2rem, 3.4vw, 2rem);
+            letter-spacing: clamp(4px, 1.4vw, 15px); margin: 0; text-transform: uppercase;
         }
 
         #utc-clock {
-            font-family: 'Inter', sans-serif; font-size: 0.75rem;
+            font-family: 'Inter', sans-serif; font-size: clamp(0.65rem, 1.2vw, 0.75rem);
             letter-spacing: 3px; color: var(--gold); font-weight: 600;
             background: rgba(0,0,0,0.3); padding: 5px 15px; border-radius: 20px;
         }
 
         .month-grid {
-            display: grid; grid-template-columns: repeat(6, 1fr);
-            gap: 12px; width: 100%; max-width: 1100px; margin: 0 auto;
+            display: grid; grid-template-columns: repeat(6, minmax(0, 1fr));
+            gap: clamp(8px, 1.2vw, 12px); width: 100%; max-width: min(1100px, 100%); margin: 0 auto;
         }
 
         .month-card {
             background: var(--glass); border: 1px solid var(--border);
-            padding: 20px 5px; text-decoration: none; color: white;
+            padding: clamp(12px, 1.3vh, 20px) 6px; text-decoration: none; color: white;
             display: flex; flex-direction: column; align-items: center;
             transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             backdrop-filter: blur(10px);
+            min-height: clamp(80px, 10vw, 110px);
+            justify-content: center;
         }
 
         .month-card:hover {
@@ -76,14 +87,14 @@
             background: rgba(255, 215, 0, 0.1);
         }
 
-        .month-card .num { font-size: 0.55rem; color: var(--gold); font-weight: 800; }
-        .month-card .name { font-family: 'Cinzel', serif; font-size: 0.8rem; margin: 4px 0; letter-spacing: 2px; }
-        .month-card i { opacity: 0.5; width: 18px; }
+        .month-card .num { font-size: clamp(0.5rem, 0.9vw, 0.6rem); color: var(--gold); font-weight: 800; }
+        .month-card .name { font-family: 'Cinzel', serif; font-size: clamp(0.7rem, 1.2vw, 0.8rem); margin: 4px 0; letter-spacing: 2px; }
+        .month-card i { opacity: 0.5; width: clamp(16px, 2vw, 18px); }
 
         /* Zodiac Footer Styling */
         .zodiac-footer {
             width: 100%; border-top: 1px solid var(--border);
-            padding-top: 25px; display: flex; justify-content: center; gap: 20px;
+            padding-top: clamp(16px, 2vw, 25px); display: flex; justify-content: center; gap: clamp(10px, 1.8vw, 20px);
             flex-wrap: wrap;
         }
 
@@ -94,12 +105,26 @@
         }
 
         .zodiac-link:hover { opacity: 1; color: var(--gold); transform: scale(1.1); }
-        .zodiac-link span { font-size: 0.5rem; text-transform: uppercase; letter-spacing: 1px; margin-top: 6px; }
+        .zodiac-link span { font-size: clamp(0.45rem, 0.85vw, 0.5rem); text-transform: uppercase; letter-spacing: 1px; margin-top: 6px; }
         .zodiac-link i { width: 16px; height: 16px; }
 
         @media (max-width: 900px) {
-            .month-grid { grid-template-columns: repeat(3, 1fr); }
+            .month-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
             .zodiac-footer { gap: 10px; }
+        }
+
+        @media (max-width: 640px) {
+            .content-overlay { padding: 16px; }
+            .top-bar { flex-direction: column; align-items: flex-start; }
+            .month-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+            .month-card { min-height: 76px; padding: 10px 4px; }
+            .zodiac-footer { justify-content: flex-start; gap: 8px; }
+        }
+
+        @media (max-width: 420px) {
+            header h1 { letter-spacing: 6px; }
+            .month-card .name { letter-spacing: 1px; }
+            .zodiac-link { min-width: 42px; }
         }
         /* Add this inside your <style> tag */
         .fade-in-load {
@@ -123,7 +148,7 @@
     <div id="bg-layer"></div>
     <canvas id="three-canvas"></canvas>
 
-    <div class="content-overlay">
+    <div class="content-overlay ui-layer">
         
         <div class="top-bar">
             <header><h1>Horizon</h1></header>
